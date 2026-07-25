@@ -1,15 +1,15 @@
-[![install with conda](https://anaconda.org/micknudsen/snpahoy/badges/version.svg)](https://anaconda.org/micknudsen/snpahoy) ![CI](https://github.com/micknudsen/snpahoy/workflows/CI/badge.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/micknudsen/snpahoy/badge.svg?branch=master)](https://coveralls.io/github/micknudsen/snpahoy?branch=master)
-
 # SNP Ahoy!
 
-Just a little tool for checking ID SNPs. It works in both germline and somatic modes as described in the sections below. By default, only sites with at least `30X` coverage are considered, and sites with major allele frequency greater than or equal to `95%` are considered homyzygote.
+[![Conda Version](https://img.shields.io/conda/vn/MOMA-AUH/snpahoy?cacheSeconds=300)](https://anaconda.org/MOMA-AUH/snpahoy) [![Conda Downloads](https://img.shields.io/conda/dn/MOMA-AUH/snpahoy?cacheSeconds=300)](https://anaconda.org/MOMA-AUH/snpahoy)
+
+Just a little tool for checking ID SNPs. It works in both germline and somatic modes as described in the sections below. By default, only sites with at least `30X` coverage are considered, and sites with major allele frequency greater than or equal to `95%` are considered homozygous.
 
 ```
 $ snpahoy --help
 Usage: snpahoy [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  --minimum_coverage INTEGER      Only consider SNP positions with a least this
+  --minimum_coverage INTEGER      Only consider SNP positions with at least this
                                   coverage  [default: 30]
 
   --minimum_base_quality INTEGER  Only count bases with at least this quality
@@ -35,7 +35,7 @@ $ snpahoy germline --help
 Usage: snpahoy germline [OPTIONS]
 
 Options:
-  --bed_file PATH              BED file with SNP postions  [required]
+  --bed_file PATH              BED file with SNP positions  [required]
   --bam_file PATH              BAM file (must be indexed)  [required]
   --reference_fasta_file PATH  Reference FASTA file for CRAM files
   --output_json_file PATH      JSON output file  [required]
@@ -48,13 +48,13 @@ The output JSON file contains input information, genotypes at all SNP positions,
 {
     "input": {
         "settings": {
-            "minimum-coverage": 30,
-            "minimum-base-quality": 1,
-            "homozygosity-threshold": 0.95
+            "minimum_coverage": 30,
+            "minimum_base_quality": 1,
+            "homozygosity_threshold": 0.95
         },
         "files": {
-            "bed-file": "snps.bed",
-            "bam-file": "germline.bam"
+            "bed_file": "snps.bed",
+            "bam_file": "germline.bam"
         }
     },
     "output": {
@@ -131,9 +131,9 @@ The output JSON file contains input information, genotypes at all SNP positions,
                 "total": 1041,
                 "genotyped": 1016
             },
-            "heterozygotes-fraction": 0.4744,
-            "mean-maf-homozygote-sites": 0.0022,
-            "mean-off-genotype-frequency": 0.0023
+            "heterozygous_site_fraction": 0.4744,
+            "mean_minor_allele_frequency_at_homozygous_sites": 0.0022,
+            "mean_off_genotype_frequency": 0.0023
         }
     }
 }
@@ -148,7 +148,7 @@ $ snpahoy somatic --help
 Usage: snpahoy somatic [OPTIONS]
 
 Options:
-  --bed_file PATH              BED file with SNP postions  [required]
+  --bed_file PATH              BED file with SNP positions  [required]
   --tumor_bam_file PATH        Tumor BAM file (must be indexed)  [required]
   --germline_bam_file PATH     Germline BAM file (must be indexed)  [required]
   --reference_fasta_file PATH  Reference FASTA file for CRAM files
@@ -156,20 +156,20 @@ Options:
   --help                       Show this message and exit.
 ```
 
-Output is similar to that in germline mode. Only sites which are genotyping in both tumor and germline are used, and the homozygote sites used in mean MAF calculations are the homozygote sites in the germline sample.
+Output is similar to that in germline mode. Only sites that are genotyped in both tumor and germline are used. In both the tumor and germline summaries, `mean_minor_allele_frequency_at_homozygous_sites` is calculated at sites classified as homozygous in the germline sample.
 
 ```
 {
     "input": {
         "settings": {
-            "minimum-coverage": 30,
-            "minimum-base-quality": 1,
-            "homozygosity-threshold": 0.95
+            "minimum_coverage": 30,
+            "minimum_base_quality": 1,
+            "homozygosity_threshold": 0.95
         },
         "files": {
-            "bed-file": "snps.bed",
-            "tumor-bam-file": "tumor.bam",
-            "germline-bam-file": "germline.bam"
+            "bed_file": "snps.bed",
+            "tumor_bam_file": "tumor.bam",
+            "germline_bam_file": "germline.bam"
         },
         "output": {
             "details": {
@@ -183,26 +183,26 @@ Output is similar to that in germline mode. Only sites which are genotyping in b
                 "genotyped": 1000
             },
             "tumor": {
-                "heterozygotes-fraction": 0.474,
-                "mean-maf-homozygote-sites": 0.0019,
-                "mean-off-genotype-frequency": 0.0019
+                "heterozygous_site_fraction": 0.474,
+                "mean_minor_allele_frequency_at_homozygous_sites": 0.0019,
+                "mean_off_genotype_frequency": 0.0019
             },
             "germline": {
-                "heterozygotes-fraction": 0.474,
-                "mean-maf-homozygote-sites": 0.0022,
-                "mean-off-genotype-frequency": 0.0019
+                "heterozygous_site_fraction": 0.474,
+                "mean_minor_allele_frequency_at_homozygous_sites": 0.0022,
+                "mean_off_genotype_frequency": 0.0019
             }
         }
     }
 }
 ```
 
-This tool is developed with the [MSK IMPACT](https://doi.org/10.1016/j.jmoldx.2014.12.006) panel in mind. Suggested cut-offs for identifying sample swap or contamination are `0.55` for heterozygotes fractions and `0.01` for mean MAFs.
+This tool is developed with the [MSK IMPACT](https://doi.org/10.1016/j.jmoldx.2014.12.006) panel in mind. Suggested cutoffs for identifying sample swaps or contamination are `0.55` for the heterozygous-site fraction and `0.01` for the mean minor allele frequency at homozygous sites.
 
 ## Installation
 
-The recommended way to install `snpahoy` is by using conda:
+The recommended way to install **snpahoy** is via [conda](https://docs.conda.io/), using the `MOMA-AUH` channel:
 
-```
-$ conda install -c micknudsen snpahoy
+```bash
+conda install MOMA-AUH::snpahoy
 ```

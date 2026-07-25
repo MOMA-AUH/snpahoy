@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snpahoy"
+version = "1.0.0"
+description = "ID SNP analysis for next-generation sequencing data."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "Michael Knudsen", email = "micknudsen@gmail.com"}]
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Bioinformatics",
+]
+dependencies = [
+  "click",
+  "pysam>=0.15",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+snpahoy = "snpahoy.client:run"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

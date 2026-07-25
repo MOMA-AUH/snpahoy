@@ -1,0 +1,39 @@
+{% set name = "snpahoy" %}
+{% set version = "1.0.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv
+
+requirements:
+  host:
+    - python >=3.10
+    - pip
+    - setuptools >=77
+    - wheel
+  run:
+    - python >=3.10
+    - click
+    - pysam >=0.15
+
+test:
+  imports:
+    - snpahoy
+  commands:
+    - snpahoy --help
+    - snpahoy germline --help
+    - snpahoy somatic --help
+
+about:
+  home: https://github.com/MOMA-AUH/snpahoy
+  summary: ID SNP analysis for next-generation sequencing data
+  license: MIT
+  license_file: LICENSE

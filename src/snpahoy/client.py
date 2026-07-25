@@ -43,7 +43,7 @@ def get_details(snps: List[SNP]):
 
 
 @click.group()
-@click.option('--minimum_coverage', default=30, show_default=True, help='Only consider SNP positions with a least this coverage')
+@click.option('--minimum_coverage', default=30, show_default=True, help='Only consider SNP positions with at least this coverage')
 @click.option('--minimum_base_quality', default=1, show_default=True, help='Only count bases with at least this quality')
 @click.option('--homozygosity_threshold', default=0.95, show_default=True, help='Consider a SNP position homozygote if frequency of most common allele is this or higher')
 @click.pass_context
@@ -57,15 +57,15 @@ def client(ctx, minimum_coverage, homozygosity_threshold, minimum_base_quality):
     results['input'] = defaultdict(dict)
     results['output'] = defaultdict(dict)
 
-    results['input']['settings'] = {'minimum-coverage': minimum_coverage,
-                                    'minimum-base-quality': minimum_base_quality,
-                                    'homozygosity-threshold': homozygosity_threshold}
+    results['input']['settings'] = {'minimum_coverage': minimum_coverage,
+                                    'minimum_base_quality': minimum_base_quality,
+                                    'homozygosity_threshold': homozygosity_threshold}
 
     ctx.obj['results'] = results
 
 
 @client.command()
-@click.option('--bed_file', type=click.Path(), required=True, help='BED file with SNP postions')
+@click.option('--bed_file', type=click.Path(), required=True, help='BED file with SNP positions')
 @click.option('--tumor_bam_file', type=click.Path(), required=True, help='Tumor BAM file (must be indexed)')
 @click.option('--germline_bam_file', type=click.Path(), required=True, help='Germline BAM file (must be indexed)')
 @click.option('--reference_fasta_file', type=click.Path(), required=False, help='Reference FASTA file for CRAM files')
@@ -75,9 +75,9 @@ def somatic(ctx, bed_file, tumor_bam_file, germline_bam_file, reference_fasta_fi
 
     results = ctx.obj['results']
 
-    results['input']['files'] = {'bed-file': os.path.basename(bed_file)}
-    results['input']['files']['tumor-bam-file'] = os.path.basename(tumor_bam_file)
-    results['input']['files']['germline-bam-file'] = os.path.basename(germline_bam_file)
+    results['input']['files'] = {'bed_file': os.path.basename(bed_file)}
+    results['input']['files']['tumor_bam_file'] = os.path.basename(tumor_bam_file)
+    results['input']['files']['germline_bam_file'] = os.path.basename(germline_bam_file)
 
     with open(bed_file, 'rt') as f:
         snp_coordinates = parse_bed_file(f.read().splitlines())
@@ -87,14 +87,14 @@ def somatic(ctx, bed_file, tumor_bam_file, germline_bam_file, reference_fasta_fi
                              get_counts=lambda chromosome, position: get_counts(alignment=AlignmentFile(germline_bam_file, reference_filename=reference_fasta_file),
                                                                                 chromosome=chromosome,
                                                                                 position=position,
-                                                                                minimum_base_quality=results['input']['settings']['minimum-base-quality']))
+                                                                                minimum_base_quality=results['input']['settings']['minimum_base_quality']))
 
     tumor_snps = get_snps(coordinates=snp_coordinates,
                           genotyper=ctx.obj['genotyper'],
                           get_counts=lambda chromosome, position: get_counts(alignment=AlignmentFile(tumor_bam_file, reference_filename=reference_fasta_file),
                                                                              chromosome=chromosome,
                                                                              position=position,
-                                                                             minimum_base_quality=results['input']['settings']['minimum-base-quality']))
+                                                                             minimum_base_quality=results['input']['settings']['minimum_base_quality']))
 
     results['output']['details'] = {'tumor': get_details(snps=tumor_snps),
                                     'germline': get_details(snps=germline_snps)}
@@ -116,14 +116,14 @@ def somatic(ctx, bed_file, tumor_bam_file, germline_bam_file, reference_fasta_fi
 
     if genotyped_snp_pairs:
         results['output']['summary']['tumor'] = {
-            'heterozygotes-fraction': float('%.4f' % (number_of_heterozygotes_tumor / len(genotyped_snp_pairs))),
-            'mean-maf-homozygote-sites': float('%.4f' % mean_minor_allele_frequency(snps=tumor_snps_at_homozygote_positions)),
-            'mean-off-genotype-frequency': float('%.4f' % mean_off_genotype_frequency(snps=[pair['tumor'] for pair in genotyped_snp_pairs]))
+            'heterozygous_site_fraction': float('%.4f' % (number_of_heterozygotes_tumor / len(genotyped_snp_pairs))),
+            'mean_minor_allele_frequency_at_homozygous_sites': float('%.4f' % mean_minor_allele_frequency(snps=tumor_snps_at_homozygote_positions)),
+            'mean_off_genotype_frequency': float('%.4f' % mean_off_genotype_frequency(snps=[pair['tumor'] for pair in genotyped_snp_pairs]))
         }
         results['output']['summary']['germline'] = {
-            'heterozygotes-fraction': float('%.4f' % (number_of_heterozygotes_germline / len(genotyped_snp_pairs))),
-            'mean-maf-homozygote-sites': float('%.4f' % mean_minor_allele_frequency(snps=germline_snps_at_homozygote_positions)),
-            'mean-off-genotype-frequency': float('%.4f' % mean_off_genotype_frequency(snps=[pair['germline'] for pair in genotyped_snp_pairs]))
+            'heterozygous_site_fraction': float('%.4f' % (number_of_heterozygotes_germline / len(genotyped_snp_pairs))),
+            'mean_minor_allele_frequency_at_homozygous_sites': float('%.4f' % mean_minor_allele_frequency(snps=germline_snps_at_homozygote_positions)),
+            'mean_off_genotype_frequency': float('%.4f' % mean_off_genotype_frequency(snps=[pair['germline'] for pair in genotyped_snp_pairs]))
         }
 
     with open(output_json_file, 'w') as json_file_handle:
@@ -131,7 +131,7 @@ def somatic(ctx, bed_file, tumor_bam_file, germline_bam_file, reference_fasta_fi
 
 
 @client.command()
-@click.option('--bed_file', type=click.Path(), required=True, help='BED file with SNP postions')
+@click.option('--bed_file', type=click.Path(), required=True, help='BED file with SNP positions')
 @click.option('--bam_file', type=click.Path(), required=True, help='BAM file (must be indexed)')
 @click.option('--reference_fasta_file', type=click.Path(), required=False, help='Reference FASTA file for CRAM files')
 @click.option('--output_json_file', type=click.Path(), required=True, help='JSON output file')
@@ -140,8 +140,8 @@ def germline(ctx, bed_file, bam_file, reference_fasta_file, output_json_file):
 
     results = ctx.obj['results']
 
-    results['input']['files'] = {'bed-file': os.path.basename(bed_file)}
-    results['input']['files']['bam-file'] = os.path.basename(bam_file)
+    results['input']['files'] = {'bed_file': os.path.basename(bed_file)}
+    results['input']['files']['bam_file'] = os.path.basename(bam_file)
 
     with open(bed_file, 'rt') as f:
         snp_coordinates = parse_bed_file(f.read().splitlines())
@@ -151,7 +151,7 @@ def germline(ctx, bed_file, bam_file, reference_fasta_file, output_json_file):
                     get_counts=lambda chromosome, position: get_counts(alignment=AlignmentFile(bam_file, reference_filename=reference_fasta_file),
                                                                        chromosome=chromosome,
                                                                        position=position,
-                                                                       minimum_base_quality=results['input']['settings']['minimum-base-quality']))
+                                                                       minimum_base_quality=results['input']['settings']['minimum_base_quality']))
 
     genotyped_snps = [snp for snp in snps if snp.genotype]
 
@@ -162,9 +162,9 @@ def germline(ctx, bed_file, bam_file, reference_fasta_file, output_json_file):
     homozygote_snps = [snp for snp in snps if snp.is_homozygote()]
 
     if genotyped_snps:
-        results['output']['summary']['heterozygotes-fraction'] = float('%.4f' % (number_of_heterozygotes / len(genotyped_snps)))
-        results['output']['summary']['mean-maf-homozygote-sites'] = float('%.4f' % mean_minor_allele_frequency(snps=homozygote_snps))
-        results['output']['summary']['mean-off-genotype-frequency'] = float('%.4f' % mean_off_genotype_frequency(snps=genotyped_snps))
+        results['output']['summary']['heterozygous_site_fraction'] = float('%.4f' % (number_of_heterozygotes / len(genotyped_snps)))
+        results['output']['summary']['mean_minor_allele_frequency_at_homozygous_sites'] = float('%.4f' % mean_minor_allele_frequency(snps=homozygote_snps))
+        results['output']['summary']['mean_off_genotype_frequency'] = float('%.4f' % mean_off_genotype_frequency(snps=genotyped_snps))
 
     with open(output_json_file, 'w') as json_file_handle:
         json.dump(results, json_file_handle, indent=4)
