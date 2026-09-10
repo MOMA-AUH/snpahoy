@@ -1,6 +1,6 @@
 # SNP Ahoy!
 
-[![Conda Version](https://img.shields.io/conda/vn/MOMA-AUH/snpahoy?cacheSeconds=300)](https://anaconda.org/MOMA-AUH/snpahoy) [![Conda Downloads](https://img.shields.io/conda/dn/MOMA-AUH/snpahoy?cacheSeconds=300)](https://anaconda.org/MOMA-AUH/snpahoy)
+[![Conda Version](https://img.shields.io/conda/vn/MOMA-AUH/snpahoy?cacheSeconds=300&style=for-the-badge)](https://anaconda.org/MOMA-AUH/snpahoy) [![Conda Downloads](https://img.shields.io/conda/dn/MOMA-AUH/snpahoy?cacheSeconds=300&style=for-the-badge)](https://anaconda.org/MOMA-AUH/snpahoy)
 
 Just a little tool for checking ID SNPs. It works in both germline and somatic modes as described in the sections below. By default, only sites with at least `30X` coverage are considered, and sites with major allele frequency greater than or equal to `95%` are considered homozygous.
 
